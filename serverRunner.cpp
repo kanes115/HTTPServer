@@ -14,7 +14,7 @@ void sigintHandler(int signum){
 int main(int argc, char* argv[]) {
     signal(SIGINT, sigintHandler);
     if(argc != 2){
-        std::cout << "Wrong usage" << std::endl;
+        std::cerr << "Wrong usage" << std::endl;
         exit(-1);
     }
 

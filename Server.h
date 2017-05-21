@@ -43,6 +43,8 @@ private:
     int prepareSocket();
 
     int listenToPort();
+
+    int sendMessage(int destSocket, string msg);
 };
 
 

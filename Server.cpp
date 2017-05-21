@@ -1,4 +1,5 @@
 #include <string>
+#include <iostream>
 #include "Server.h"
 using std::string;
 
@@ -15,7 +16,7 @@ Server::Server(int maxConnections, string port){
 void Server::runServer(){
 
     if(prepareSocket() != 0 || listenToPort() != 0){
-        printf("Error while preparing sockets and listening to port\n");
+        cerr << "Error while preparing sockets and listening to port" << endl;
         exit(-1);
     }
 
@@ -23,14 +24,9 @@ void Server::runServer(){
         addr_size = sizeof their_addr;
         new_fd = accept(sockfd, (struct sockaddr *) &their_addr, &addr_size);
         printf("Client came\n");
-        if(!fork()){
-            close(sockfd);
-            if (send(new_fd, "I can hear you!\n", sizeof("I can hear you!\n"), 0) == 1){
-                perror("send");
-                exit(-1);
-            }
-            close(new_fd);
-            exit(0);
+        if(sendMessage(new_fd, "Hello my friend!\0") != 0){
+            cerr << "Error while sending message" << endl;
+            exit(-1);
         }
     }
 }
@@ -96,6 +92,17 @@ int Server::listenToPort(){
     if(listen(sockfd, backlog) != 0){
         perror("listen");
         return -2;
+    }
+    return 0;
+}
+
+
+int Server::sendMessage(int destSocket, string msg){
+    printf("%ld\n", msg.length());
+
+    if (send(destSocket, msg.c_str(), msg.length() + 1, 0) == 1){
+        perror("send");
+        return -1;
     }
     return 0;
 }
