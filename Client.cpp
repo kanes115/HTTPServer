@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <zconf.h>
 #include <string>
+#include <iostream>
 #include "Client.h"
 
 using namespace std;
@@ -16,6 +17,9 @@ using namespace std;
 Client::Client(string servAddress, string port) {
     this->destAddr = servAddress;
     this->destPort = port;
+    this->msgBuilder = new HttpBuilder();
+    this->msgBuilder->addHeader("Host", this->destAddr);
+    cout << msgBuilder->buildGET(this->destAddr) << endl;
 }
 
 int Client::waitForAcceptance(){

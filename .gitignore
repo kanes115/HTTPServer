@@ -5,3 +5,4 @@ Makefile
 cmake_ins*
 *.a
 out/*
+*.cbp

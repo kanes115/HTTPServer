@@ -13,9 +13,11 @@
 #define HTTPSERVERC_SERVER_H
 
 
+using namespace std;
+
 #include <netinet/in.h>
 
-using namespace std;
+#include "HttpBuilder.h"
 
 
 
