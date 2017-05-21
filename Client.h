@@ -7,11 +7,13 @@
 
 
 #include <cstdlib>
+#include <string.h>
+using namespace std;
 
 class Client {
 
 public:
-    Client(char *servAddress, char *port);
+    Client(std::string servAddress, std::string port);
 
     int waitForAcceptance();
 
@@ -19,7 +21,7 @@ public:
 
 
 private:
-    char *destAddr, *destPort;
+    string destAddr, destPort;
     struct addrinfo *hints, *res;
     int sockfd;
 

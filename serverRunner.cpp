@@ -14,15 +14,14 @@ void sigintHandler(int signum){
 int main(int argc, char* argv[]) {
     signal(SIGINT, sigintHandler);
     if(argc != 2){
-        printf("Wrong usage\n");
+        std::cout << "Wrong usage" << std::endl;
         exit(-1);
     }
 
     s = new Server(5, argv[1]);
 
-    char* name = s->getHostname();
-    printf("Server started. Hostname: %s\n", name);
-    free(name);
+    string name = s->getHostname();
+    cout << "Server started. Hostname: " << name << endl;
     s->runServer();
 
 

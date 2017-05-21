@@ -1,22 +1,21 @@
 //
 // Created by Dominik Stanaszek on 19.05.2017.
 //
-
 #include <netdb.h>
 #include <cstring>
 #include <cstdio>
 #include <zconf.h>
-#include <signal.h>
+#include <string>
 #include "Client.h"
+
+using namespace std;
 
 
 //public
 
-Client::Client(char *servAddress, char *port) {
-    this->destAddr = (char *) malloc(strlen(servAddress));
-    this->destPort = (char *) malloc(strlen(port));
-    strcpy(destAddr, servAddress);
-    strcpy(destPort, port);
+Client::Client(string servAddress, string port) {
+    this->destAddr = servAddress;
+    this->destPort = port;
 }
 
 int Client::waitForAcceptance(){
@@ -51,7 +50,7 @@ int Client::prepareSocketAndConnect() {
     hints->ai_family = AF_UNSPEC;
     hints->ai_socktype = SOCK_STREAM;
 
-    if(getaddrinfo(destAddr, destPort, hints, &res) != 0){
+    if(getaddrinfo(destAddr.c_str(), destPort.c_str(), hints, &res) != 0){
         perror("getaddrinfo");
         return -1;
     }

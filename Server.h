@@ -12,10 +12,10 @@
 #ifndef HTTPSERVERC_SERVER_H
 #define HTTPSERVERC_SERVER_H
 
-#define MYPORT "3049"
-
 
 #include <netinet/in.h>
+
+using namespace std;
 
 
 
@@ -23,11 +23,11 @@
 class Server {
 
 public:
-    Server(int maxConnections, char* port);
+    Server(int maxConnections, std::string port);
 
     void runServer();
 
-    char* getHostname();
+    string getHostname();
 
     void closeSockets();
 
@@ -38,8 +38,7 @@ private:
     socklen_t addr_size;
     struct addrinfo hints, *res;
     int backlog;
-    char *myport;
-    char myIP[INET6_ADDRSTRLEN];
+    string myport;
 
     int prepareSocket();
 

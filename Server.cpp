@@ -6,10 +6,9 @@ using std::string;
 
 //public
 
-Server::Server(int maxConnections, char* port){
+Server::Server(int maxConnections, string port){
     backlog = maxConnections;
-    this->myport = (char *) malloc(strlen(port));
-    strcpy(this->myport, port);
+    this->myport = port;
 }
 
 
@@ -38,7 +37,7 @@ void Server::runServer(){
 
 //must be freed
 //NULL on error
-char *Server::getHostname() {
+string Server::getHostname() {
     char* myIP;
     myIP = (char *) malloc(64);
 
@@ -47,7 +46,7 @@ char *Server::getHostname() {
         return NULL;
     }
 
-    return myIP;
+    return string(myIP);
 }
 
 
@@ -70,7 +69,8 @@ int Server::prepareSocket(){
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;     // fill in my IP for me
 
-    if(getaddrinfo(NULL, myport, &hints, &res) != 0){
+
+    if(getaddrinfo(NULL, myport.c_str(), &hints, &res) != 0){
         perror("getaddrinfo");
         return -1;
     }
