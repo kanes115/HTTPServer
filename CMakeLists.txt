@@ -8,11 +8,11 @@ set(CMAKE_CXX_FLAGS "-Wall -g")
 
 
 # source files
-file(GLOB SRCS2 Client.cpp Client.h)
-file(GLOB SRCS3 Server.cpp Server.h)
-file(GLOB SRCS4 serverRunner.cpp)
-file(GLOB SRCS5 clientRunner.cpp)
-file(GLOB SRCS6 HttpBuilder.cpp HttpBuilder.h)
+file(GLOB_RECURSE SRCS2 src/Client.cpp src/Client.h)
+file(GLOB_RECURSE SRCS3 src/Server.cpp src/Server.h)
+file(GLOB_RECURSE SRCS4 src/serverRunner.cpp)
+file(GLOB_RECURSE SRCS5 src/clientRunner.cpp)
+file(GLOB_RECURSE SRCS6 src/HttpBuilder.cpp src/HttpBuilder.h)
 
 # libraries and executables
 add_library(Client ${SRCS2})
