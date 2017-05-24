@@ -1,15 +1,17 @@
-#include <string>
-#include <iostream>
 #include "Server.h"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmissing-noreturn"
 using std::string;
 
 
 
 //public
 
-Server::Server(int maxConnections, string port){
+Server::Server(int maxConnections, string port, string root) {
     backlog = maxConnections;
     this->myport = port;
+    this->responesBuilder = new HttpBuilder();
+    this->fileMenager = new FileMenager(root);
 }
 
 
@@ -23,15 +25,11 @@ void Server::runServer(){
     while(1) {
         addr_size = sizeof their_addr;
         new_fd = accept(sockfd, (struct sockaddr *) &their_addr, &addr_size);
-        printf("Client came\n");
-        if(sendMessage(new_fd, "Hello my friend!\0") != 0){
-            cerr << "Error while sending message" << endl;
-            exit(-1);
-        }
+        cout << "Got connection!" << endl;
+        serve(new_fd);
     }
 }
 
-//must be freed
 //NULL on error
 string Server::getHostname() {
     char* myIP;
@@ -96,13 +94,53 @@ int Server::listenToPort(){
     return 0;
 }
 
+//need to implement timeout
+void Server::serve(int new_fd){
+
+    if(!fork()){
+
+        while(1) {
+            char buf[255];
+            string responseText;
+            if (recv(new_fd, buf, 255, 0)) {
+                HttpBuilder *resp = new HttpBuilder();
+                HttpParser *parser = new HttpParser(string(buf));
+                bool notFound = false;
+                string body;
+                try {
+                    body = fileMenager->getPageFromFile(parser->getUrl());
+                } catch (FileDoesNotExist &e) {
+                    resp->setStatus(404, "File_not_found");
+                    notFound = true;
+                }
+
+                if (!notFound) {
+                    resp->setBody(body);
+                    resp->setStatus(200, "OK");
+                }
+
+                responseText = resp->buildResponse();
+
+                cout << "My response: " << responseText << endl;
+
+                if (sendMessage(new_fd, responseText) != 0) {
+                    cerr << "Error while sending message" << endl;
+                    exit(-1);
+                }
+            }
+        }
+        close(new_fd);
+    }
+}
+
+
 
 int Server::sendMessage(int destSocket, string msg){
-    printf("%ld\n", msg.length());
-
     if (send(destSocket, msg.c_str(), msg.length() + 1, 0) == 1){
         perror("send");
         return -1;
     }
     return 0;
 }
+
+#pragma clang diagnostic pop

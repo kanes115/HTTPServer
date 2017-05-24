@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
         exit(-1);
     }
 
-    s = new Server(5, argv[1]);
+    s = new Server(5, argv[1], ".");
 
     string name = s->getHostname();
     cout << "Server started. Hostname: " << name << endl;

@@ -43,13 +43,14 @@ string HttpBuilder::buildResponse(){
         return NULL;
     }
     //status line
-    string res = PROTOCOL_VERSION;
+    string res = "HTTP/";
+    res += PROTOCOL_VERSION;
     res += " " + to_string(this->statusCode);
     res += " " + this->reason + CRLF;
     for(int i = 0; i < this->headersNo; i++){
         res += this->headers[i] + CRLF;
     }
     if(body != "")
-        res += body + CRLF;
+        res += body + CRLF + CRLF + CRLF;
     return res;
 }

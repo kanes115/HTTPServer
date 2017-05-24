@@ -17,9 +17,7 @@ using namespace std;
 Client::Client(string servAddress, string port) {
     this->destAddr = servAddress;
     this->destPort = port;
-    this->msgBuilder = new HttpBuilder();
-    this->msgBuilder->addHeader("Host", this->destAddr);
-    cout << msgBuilder->buildGET(this->destAddr) << endl;
+    this->reqBuilder = new HttpBuilder();
 }
 
 int Client::waitForAcceptance(){

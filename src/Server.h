@@ -8,24 +8,27 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include <netinet/in.h>
+#include <string>
+#include <iostream>
+#include <pthread.h>
+#include "FileMenager.h"
+#include "HttpBuilder.h"
+#include "HttpParser.h"
 
 #ifndef HTTPSERVERC_SERVER_H
 #define HTTPSERVERC_SERVER_H
 
-
 using namespace std;
 
-#include <netinet/in.h>
 
-#include "HttpBuilder.h"
-
-
+#define TIMEOUT 15
 
 
 class Server {
 
 public:
-    Server(int maxConnections, std::string port);
+    Server(int maxConnections, string port, string root);
 
     void runServer();
 
@@ -42,13 +45,18 @@ private:
     int backlog;
     string myport;
 
+    HttpBuilder* responesBuilder;
+
     int prepareSocket();
 
     int listenToPort();
 
+    FileMenager* fileMenager;
+
+    void serve(int new_fd);
+
     int sendMessage(int destSocket, string msg);
 };
-
 
 
 #endif //HTTPSERVERC_SERVER_H

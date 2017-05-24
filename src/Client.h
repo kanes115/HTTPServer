@@ -23,7 +23,7 @@ public:
 
 
 private:
-    HttpBuilder *msgBuilder;
+    HttpBuilder *reqBuilder;
     string destAddr, destPort;
     struct addrinfo *hints, *res;
     int sockfd;

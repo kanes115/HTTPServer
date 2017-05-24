@@ -38,15 +38,6 @@ public:
 
 
 
-//to implement
-//    void clearHeaders();
-//
-//    void clearBody();
-//
-//    void clearStatus();
-
-
-
 
 private:
     //shared responses and GET

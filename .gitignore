@@ -6,3 +6,5 @@ cmake_ins*
 *.a
 out/*
 *.cbp
+build/*
+cmake-*
