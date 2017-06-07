@@ -51,6 +51,6 @@ string HttpBuilder::buildResponse(){
         res += this->headers[i] + CRLF;
     }
     if(body != "")
-        res += body + CRLF + CRLF + CRLF;
+        res += body + CRLF;
     return res;
 }

@@ -11,6 +11,7 @@
 #include <netinet/in.h>
 #include <string>
 #include <iostream>
+#include <thread>
 #include <pthread.h>
 #include "FileMenager.h"
 #include "HttpBuilder.h"
@@ -19,7 +20,7 @@
 #ifndef HTTPSERVERC_SERVER_H
 #define HTTPSERVERC_SERVER_H
 
-using namespace std;
+// using namespace std;
 
 
 #define TIMEOUT 15
@@ -28,7 +29,7 @@ using namespace std;
 class Server {
 
 public:
-    Server(int maxConnections, string port, string root);
+    Server(int maxConnections, string port, string root, int secTimeout, int maxClients);
 
     void runServer();
 
@@ -38,24 +39,43 @@ public:
 
 
 private:
-    int sockfd, new_fd;
-    struct sockaddr_storage their_addr;
-    socklen_t addr_size;
-    struct addrinfo hints, *res;
-    int backlog;
-    string myport;
+  typedef struct Client_{
+    int socket;
+    pthread_t t_id;
+  } Client;
 
-    HttpBuilder* responesBuilder;
+  int listening_socket;
+  socklen_t addr_size;
+  struct addrinfo hints, *res;
+  int backlog;
+  string myport;
 
-    int prepareSocket();
+  //table of clients
+  Client** clients;
+  int client_no;
+  pthread_mutex_t clients_mutex;
 
-    int listenToPort();
+  pthread_mutex_t incr_mutex;
 
-    FileMenager* fileMenager;
+  HttpBuilder* responesBuilder;
 
-    void serve(int new_fd);
 
-    int sendMessage(int destSocket, string msg);
+
+  void serve_routine();
+
+  string getAddress(struct sockaddr_storage* addrb);
+
+  int prepareSocket();
+
+  int listenToPort();
+
+  FileMenager* fileMenager;
+
+  void serve(int new_fd);
+
+  int sendMessage(int destSocket, string msg);
+
+  int secTimeout;
 };
 
 
