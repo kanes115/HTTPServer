@@ -41,7 +41,7 @@ public:
 private:
   typedef struct Client_{
     int socket;
-    pthread_t t_id;
+      thread *thr;
   } Client;
 
   int listening_socket;
@@ -61,7 +61,7 @@ private:
 
 
 
-  void serve_routine();
+  void serve_routine(int myClientNo);
 
   string getAddress(struct sockaddr_storage* addrb);
 

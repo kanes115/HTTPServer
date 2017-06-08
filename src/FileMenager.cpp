@@ -9,6 +9,8 @@ FileMenager::FileMenager(string root){
 string FileMenager::getPageFromFile(string relevantPath) {
     string path = root + relevantPath;
 
+    cout <<"Looking under " << path << endl;
+
     ifstream file(path);
     if(!file.is_open()) {
         throw FileDoesNotExist();

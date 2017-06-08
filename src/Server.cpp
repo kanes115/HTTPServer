@@ -23,12 +23,10 @@ Server::Server(int maxConnections, string port, string root, int secTimeout, int
 
 
 void Server::runServer(){
-
     if(prepareSocket() != 0 || listenToPort() != 0){
         cerr << "Error while preparing sockets and listening to port" << endl;
         exit(-1);
     }
-
     while(1) {
         struct sockaddr_storage* their_addr = (struct sockaddr_storage*) malloc(sizeof(struct sockaddr_storage));
         addr_size = sizeof(struct sockaddr_storage);
@@ -68,10 +66,6 @@ void Server::closeSockets() {
     printf("Couldn't close socket for listening_socket\n");
   }
 }
-
-
-
-
 
 
 //private
@@ -126,30 +120,22 @@ int Server::listenToPort(){
 
 //need to implement timeout
 void Server::serve(int new_fd){
-  pthread_mutex_lock(&clients_mutex);
-  Client* cl = (Client*) malloc(sizeof(Client));
-  cl->socket = new_fd;
-  clients[client_no] = cl;
-  thread(&Server::serve_routine, this);
-  // if(pthread_create(&cl->t_id, NULL, serve_routine, this) != 0){
-  //   perror("pthread_create");
-  //   return;
-  // }
-  pthread_mutex_lock(&incr_mutex);
-  client_no++;
-
-  pthread_mutex_unlock(&clients_mutex);
+    pthread_mutex_lock(&clients_mutex);
+    Client* cl = (Client*) malloc(sizeof(Client));
+    cl->socket = new_fd;
+    clients[client_no] = cl;
+    cl->thr = new std::thread(&Server::serve_routine, this, client_no);
+    client_no++;
+    pthread_mutex_unlock(&clients_mutex);
 }
 
 
 
-void Server::serve_routine(){
-  pthread_mutex_lock(&this->incr_mutex);
-  pthread_mutex_unlock(&this->incr_mutex);
+void Server::serve_routine(int myClientNo){
     while(1){
         char buf[255];
         string responseText;
-        if (recv(this->clients[client_no]->socket, buf, 255, 0)) {
+        if (recv(this->clients[myClientNo]->socket, buf, 255, 0)) {
             HttpBuilder *resp = new HttpBuilder();
             HttpParser *parser = new HttpParser(string(buf));
             bool notFound = false;
@@ -157,24 +143,21 @@ void Server::serve_routine(){
             try {
                 body = this->fileMenager->getPageFromFile(parser->getUrl());
             } catch (FileDoesNotExist &e) {
-                resp->setStatus(404, "File_not_found");
+                resp->setStatus(404, e.what());
                 notFound = true;
             }
-
             if (!notFound) {
                 resp->setBody(body);
                 resp->setStatus(200, "OK");
             }
-
             responseText = resp->buildResponse();
-
-            if (sendMessage(this->clients[client_no]->socket, responseText) != 0) {
+            if (sendMessage(this->clients[myClientNo]->socket, responseText) != 0) {
                 cerr << "Error while sending message" << endl;
                 exit(-1);
             }
         }
     }
-    close(this->clients[client_no]->socket);
+    close(this->clients[myClientNo]->socket);
 }
 
 
