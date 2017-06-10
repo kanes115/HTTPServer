@@ -12,10 +12,10 @@ using namespace std;
 //fileNotFoundPagePath - what should be sent when file is not found - passed excluding "/"
 Server::Server(int port, string root, string rootFilePath, int maxClients, int secTimeout = 15,
                string fileNotFoundPagePath = "", string logFilePath = "") {
+    this->logger = new Logger(logFilePath);
     try{
         this->root = root;
         this->logFilePath = logFilePath;
-        this->logger = new Logger(logFilePath);
         if(logFilePath == "")
             this->logger->deactivate();
         backlog = BACKLOG;
@@ -32,6 +32,7 @@ Server::Server(int port, string root, string rootFilePath, int maxClients, int s
             exit(1);
         }
     } catch(exception e) {
+        logger->log_error("Error while creating server\n" + string(e.what()));
         throw ServerException("Error while creating server\n" + string(e.what()));
     }
 }
@@ -171,7 +172,6 @@ void Server::serve_routine(int myClientNo){
             }
             else {
                 logger->log_error("Error when receiving from client " + to_string(myClientNo) + ": " + strerror(errno));
-                cout << "Error when receiving from client " + to_string(myClientNo) + ": " + strerror(errno) << endl;
             }
             pthread_mutex_lock(&connection_mutex);
             clients->signToDelete(myClientNo);
@@ -186,13 +186,21 @@ void Server::serve_routine(int myClientNo){
             return;
         }
 
-        printf("buf: %s", buf);
-
-        HttpParser *parser = new HttpParser(string(buf));
-        if(parser->isGet())
-            sendGetAnswer(parser, myClientNo);
-        else if(parser->isPost())
-            servePost(parser, myClientNo);
+        HttpParser *parser;
+        try {
+            parser = new HttpParser(string(buf));
+            if (parser->isGet()) {
+                cout << "Got GET query from client " << to_string(myClientNo) << endl;
+                sendGetAnswer(parser, myClientNo);
+            }
+            else if (parser->isPost()) {
+                cout << "Got POST query from client " << to_string(myClientNo) << endl;
+                servePost(parser, myClientNo);
+            }
+        }catch(ServerException& e){
+            logger->log_error("Error while sending message to client " + to_string(myClientNo));
+            continue;
+        }
 
         if(parser->getHeader("Connection") == "close") {
             pthread_mutex_lock(&connection_mutex);
@@ -253,8 +261,6 @@ void Server::sendGetAnswer(HttpParser* parser, int myClientNo){
 
 
 void Server::servePost(HttpParser *parser, int myClientNo) {
-    cout<< "Got POST: " << parser->getUrl() << endl;
-
     string url = parser->getUrl();
     string scriptpath = url.substr(1, url.size() - 1);
 

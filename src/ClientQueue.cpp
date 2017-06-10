@@ -92,7 +92,6 @@ Client* ClientQueue::getAtTabInd(int ind){
 }
 
 void ClientQueue::signToDelete(int id) {
-    cout << "   SIGNING TIMEOUTED -----------------" << endl;
     if(this->get(id) != NULL)
         this->get(id)->toDelete = true;
 

@@ -57,6 +57,5 @@ string HttpBuilder::buildResponse(){
 
 string HttpBuilder::getBodySize(){
     long int size = this->body.length();
-    cout << "size: " << size << endl;
     return to_string(size);
 }
