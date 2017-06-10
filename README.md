@@ -1,6 +1,6 @@
 # HTTPServer
 
-This is an http server written under OS X. It serves GET and POST (CGI) requests.
+This is an http server written under OS X. It serves GET and POST (CGI) requests. HTTP version - 1.1
 
 ## Installation
 Clone the repository
@@ -44,3 +44,16 @@ logFile: log.txt
 # page that will be loaded when 404 accours
 fileNotFoundPage: filenotfound.html
 ```
+## Resources
+You add resources you want to be availible for clients in a folder where your server runs.
+They reach them by specyfying the path to them.
+```
+GET
+<address>:<port>/path/to/resource/*.html
+```
+GET requests will only send a page to a client (or other data at a resource).
+```
+POST
+<address>:<port>/path/to/the/resource/*.cgi
+```
+POST rquests will run a program *.cgi and send to client whatever it will send to stdout (see CGI)
