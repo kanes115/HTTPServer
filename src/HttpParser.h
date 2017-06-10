@@ -19,6 +19,11 @@ class HttpParser {
 
 public:
 
+    typedef struct Header_{
+        string key;
+        string value;
+    } Header;
+
     HttpParser(string msg);
 
 
@@ -36,14 +41,13 @@ public:
 
 
     //POST
+    int postValuesSize();
+
+    Header* postValues();
 
 
 
 private:
-    typedef struct Header_{
-        string key;
-        string value;
-    } Header;
     string whole_msg;
     string method_str;
     string Url;
@@ -51,7 +55,29 @@ private:
     Header headers[MAX_HEADERSP];
     int headersNo;
 
+    //only POST
+    Header postvalues[MAX_HEADERSP];
+    int postvals_no;
+
     void addHeader(string key, string value);
+};
+
+
+
+
+class ParserException: public exception{
+
+    string cause;
+
+public:
+
+    ParserException(string cause){
+        this->cause = cause;
+    }
+
+    virtual const char* what() const throw() {
+        return this->cause.c_str();
+    }
 };
 
 

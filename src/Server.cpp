@@ -13,6 +13,7 @@ using namespace std;
 Server::Server(int port, string root, string rootFilePath, int maxClients, int secTimeout = 15,
                string fileNotFoundPagePath = "", string logFilePath = "") {
     try{
+        this->root = root;
         this->logFilePath = logFilePath;
         this->logger = new Logger(logFilePath);
         if(logFilePath == "")
@@ -40,6 +41,7 @@ void Server::runServer(){
     try {
         prepareSocket();
         listenToPort();
+        cout << "Port: " << this->myport << endl;
         logger->log("\nServer started: " + getHostname() + '\n' + this->listProperties());
         this->deleter = new thread(&Server::deletingTimeoutedClients, this);
         while(1) {
@@ -190,7 +192,7 @@ void Server::serve_routine(int myClientNo){
         if(parser->isGet())
             sendGetAnswer(parser, myClientNo);
         else if(parser->isPost())
-            servePost(parser);
+            servePost(parser, myClientNo);
 
         if(parser->getHeader("Connection") == "close") {
             pthread_mutex_lock(&connection_mutex);
@@ -249,10 +251,43 @@ void Server::sendGetAnswer(HttpParser* parser, int myClientNo){
 }
 
 
-void Server::servePost(HttpParser* parser){
+
+void Server::servePost(HttpParser *parser, int myClientNo) {
     cout<< "Got POST: " << parser->getUrl() << endl;
 
-    
+    string url = parser->getUrl();
+    string scriptpath = url.substr(1, url.size() - 1);
+
+    string cmd = this->root + "/";
+
+    cmd += scriptpath;
+
+    for(int i = 0; i < parser->postValuesSize(); i++)
+        cmd += " " + parser->postValues()[i].value;
+
+    FILE* descr = popen(cmd.c_str(), "r+");
+
+    char buf[4096];
+    string str_toclient = "";
+
+    ssize_t readno;
+    while((readno = fread(buf, 1, 4096, descr)) == 4096) {
+        str_toclient += string(buf);
+    }
+    buf[readno] = '\0';
+    str_toclient += string(buf);
+
+    HttpBuilder *resp = new HttpBuilder();
+    resp->setStatus(200, "OK");
+    resp->setBody(str_toclient);
+    resp->addHeader("Content-length", resp->getBodySize());
+
+    cout << endl << "my response: " << resp->buildResponse() << endl;
+
+    if (sendMessage(myClientNo, resp->buildResponse()) != 0)
+        throw ServerException("Error while sending message");
+
+
 }
 
 

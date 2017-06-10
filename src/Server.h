@@ -77,7 +77,7 @@ private:
 
     void sendGetAnswer(HttpParser *parser, int socket);
 
-    void servePost(HttpParser *parser);
+    void servePost(HttpParser *parser, int myClientNo);
 
     void deletingTimeoutedClients();
 
@@ -88,6 +88,7 @@ private:
 
     int maxClients;
     string logFilePath;
+    string root;
 };
 
 

@@ -17,6 +17,7 @@ file(GLOB_RECURSE SRCS8 src/HttpParser.cpp src/HttpParser.h)
 file(GLOB_RECURSE SRCS9 src/ClientQueue.cpp src/ClientQueue.h)
 file(GLOB_RECURSE SRCS10 src/Configurator.cpp src/Configurator.h)
 file(GLOB_RECURSE SRCS11 src/Logger.cpp src/Logger.h)
+file(GLOB_RECURSE SRCS12 src/exampleScript.cpp)
 
 # libraries and executables
 add_library(Server ${SRCS3})
@@ -27,6 +28,7 @@ add_library(ClientQueue ${SRCS9})
 add_library(Configurator ${SRCS10})
 add_library(Logger ${SRCS11})
 add_executable(serverRunner ${SRCS4} .)
+add_executable(exampleScript.cgi ${SRCS12} .)
 
 # linking libraries to executables
 target_link_libraries(serverRunner Server)
@@ -46,6 +48,7 @@ set_target_properties(HttpParser PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(ClientQueue PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(Configurator PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(Logger PROPERTIES LINKER_LANGUAGE CXX)
+set_target_properties(exampleScript.cgi PROPERTIES LINKER_LANGUAGE CXX)
 
 # setting output folder
 set_target_properties(Server PROPERTIES RUNTIME_OUTPUT_DIRECTORY out)
@@ -56,3 +59,4 @@ set_target_properties(HttpParser PROPERTIES RUNTIME_OUTPUT_DIRECTORY out)
 set_target_properties(ClientQueue PROPERTIES RUNTIME_OUTPUT_DIRECTORY out)
 set_target_properties(Configurator PROPERTIES RUNTIME_OUTPUT_DIRECTORY out)
 set_target_properties(Configurator PROPERTIES RUNTIME_OUTPUT_DIRECTORY out)
+set_target_properties(exampleScript.cgi PROPERTIES RUNTIME_OUTPUT_DIRECTORY out)
