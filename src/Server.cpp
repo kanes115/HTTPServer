@@ -220,9 +220,19 @@ void Server::sendGetAnswer(HttpParser* parser, int myClientNo){
         else
             path = parser->getUrl().substr(1, parser->getUrl().size() - 1);
         body = this->fileMenager->getPageFromFile(path);
-    } catch (FileDoesNotExist &e) {
+    } catch (FileDoesNotExist &e) {         //requested file not found
         resp->setStatus(404, e.what());
-        resp->addHeader("Content-length", "0");
+        if(this->fileNotFoundPage == "")
+            resp->addHeader("Content-length", "0");
+        else{
+            try {
+                body = this->fileMenager->getPageFromFile(this->fileNotFoundPage);
+                resp->setBody(body);
+                resp->addHeader("Content-length", resp->getBodySize());
+            }catch(FileDoesNotExist& e){
+                logger->log_error("\"File not found\" not found!");
+            }
+        }
         notFound = true;
         logger->log("Sending 404 file not found to client " + to_string(myClientNo));
     }
@@ -241,6 +251,8 @@ void Server::sendGetAnswer(HttpParser* parser, int myClientNo){
 
 void Server::servePost(HttpParser* parser){
     cout<< "Got POST: " << parser->getUrl() << endl;
+
+    
 }
 
 
