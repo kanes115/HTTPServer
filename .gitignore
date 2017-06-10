@@ -8,3 +8,6 @@ out/*
 *.cbp
 build/*
 cmake-*
+*.html
+*.txt
+.DS_Store*

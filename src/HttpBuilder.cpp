@@ -12,7 +12,6 @@ HttpBuilder::HttpBuilder() {
     body = "";
 }
 
-//na pewno URL? jak to nazwać?
 string HttpBuilder::buildGET(string URL){
     string res = "GET " + URL + " HTTP/" + PROTOCOL_VERSION;
     for(int i = 0; i < this->headersNo; i++){
@@ -51,6 +50,13 @@ string HttpBuilder::buildResponse(){
         res += this->headers[i] + CRLF;
     }
     if(body != "")
-        res += body + CRLF;
+        res += CRLF + body;
     return res;
+}
+
+
+string HttpBuilder::getBodySize(){
+    long int size = this->body.length();
+    cout << "size: " << size << endl;
+    return to_string(size);
 }

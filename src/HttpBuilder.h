@@ -8,7 +8,7 @@
 using namespace std;
 
 
-#define MAX_HEADERS 64
+#define MAX_HEADERSB 64
 #define PROTOCOL_VERSION "1.1"
 #define CRLF "\r\n"
 
@@ -36,18 +36,19 @@ public:
 
     void setBody(string body);
 
+    string getBodySize();
+
 
 
 
 private:
     //shared responses and GET
-    string headers[MAX_HEADERS];
+    string headers[MAX_HEADERSB];
     int headersNo;
     //responses
     int statusCode;
     string reason;
     string body;
-
 };
 
 

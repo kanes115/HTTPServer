@@ -1,4 +1,3 @@
-#include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -7,29 +6,34 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <arpa/inet.h>
-#include <string.h>
 #include <netinet/in.h>
 #include <string>
 #include <iostream>
 #include <thread>
 #include <pthread.h>
+#include <string.h>
+#include <ctime>
+#include <time.h>
 #include "FileMenager.h"
 #include "HttpBuilder.h"
 #include "HttpParser.h"
+#include "ClientQueue.h"
+#include "Logger.h"
 
 #ifndef HTTPSERVERC_SERVER_H
 #define HTTPSERVERC_SERVER_H
 
-// using namespace std;
+#define MSGBUF_SIZE 1024 * 64
+#define DEL_CL_INTERVAL 1
 
-
-#define TIMEOUT 15
+#define BACKLOG 5
 
 
 class Server {
 
 public:
-    Server(int maxConnections, string port, string root, int secTimeout, int maxClients);
+    Server(int port, string root, string rootFilePath, int maxClients, int secTimeout,
+               string fileNotFoundPagePath, string logFilePath);
 
     void runServer();
 
@@ -39,25 +43,19 @@ public:
 
 
 private:
-  typedef struct Client_{
-    int socket;
-      thread *thr;
-  } Client;
 
-  int listening_socket;
-  socklen_t addr_size;
-  struct addrinfo hints, *res;
-  int backlog;
-  string myport;
+    int listening_socket;
+    socklen_t addr_size;
+    struct addrinfo hints, *res;
+    int backlog;
+    string myport;
+    ClientQueue *clients;
+    //mutexes
+    pthread_mutex_t connection_mutex;
+    bool toFinish;
+    thread* deleter;
+    Logger* logger;
 
-  //table of clients
-  Client** clients;
-  int client_no;
-  pthread_mutex_t clients_mutex;
-
-  pthread_mutex_t incr_mutex;
-
-  HttpBuilder* responesBuilder;
 
 
 
@@ -65,9 +63,9 @@ private:
 
   string getAddress(struct sockaddr_storage* addrb);
 
-  int prepareSocket();
+  void prepareSocket();
 
-  int listenToPort();
+  void listenToPort();
 
   FileMenager* fileMenager;
 
@@ -76,7 +74,38 @@ private:
   int sendMessage(int destSocket, string msg);
 
   int secTimeout;
+
+    void sendGetAnswer(HttpParser *parser, int socket);
+
+    void servePost(HttpParser *parser);
+
+    void deletingTimeoutedClients();
+
+    string rootFile;
+    string fileNotFoundPage;
+
+    string listProperties();
+
+    int maxClients;
+    string logFilePath;
 };
+
+
+class ServerException: public exception{
+
+    string cause;
+
+public:
+
+    ServerException(string cause){
+        this->cause = cause;
+    }
+
+    virtual const char* what() const throw() {
+        return this->cause.c_str();
+    }
+};
+
 
 
 #endif //HTTPSERVERC_SERVER_H
